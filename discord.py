@@ -54,4 +54,4 @@ async def clear(ctx, amount: int):
     await ctx.channel.purge(limit=amount)
     await ctx.send(f"Deleted {amount} messages.", delete_after=3)
 
-bot.run(TOKEN)
+bot.run("TOKEN")
