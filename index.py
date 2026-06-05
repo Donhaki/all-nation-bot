@@ -1,12 +1,7 @@
 import discord
-import datetime
 from discord.ext import commands
-from discord import app_commands
-from datetime import timedelta
 from dotenv import load_dotenv
-import json
 import os
-import re
 
 load_dotenv()
 
@@ -14,44 +9,53 @@ TOKEN = os.getenv("TOKEN")
 
 intents = discord.Intents.default()
 intents.message_content = True
-intents.members = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f"Logged in as {bot.user}")
+    print(f"{bot.user} is online!")
 
-# KICK COMMAND
+# Send a normal message
 @bot.command()
-@commands.has_permissions(kick_members=True)
-async def kick(ctx, member: discord.Member, *, reason=None):
-    await member.kick(reason=reason)
-    await ctx.send(f"{member} was kicked.")
+async def say(ctx, *, message):
+    await ctx.send(message)
 
-# BAN COMMAND
+# Send an embed
 @bot.command()
-@commands.has_permissions(ban_members=True)
-async def ban(ctx, member: discord.Member, *, reason=None):
-    await member.ban(reason=reason)
-    await ctx.send(f"{member} was banned.")
-
-# KICK COMMAND
-@bot.command()
-@commands.has_permissions(moderate_members=True)
-async def timeout(ctx, member: discord.Member, minutes: int, *, reason=None):
-    duration = timedelta(minutes=minutes)
-    
-    await member.timeout(duration, reason=reason)
-    await ctx.send(
-    f"{member.mention} has been timed out for {minutes} minute(s).\nReason: {reason}"
+async def embed(ctx):
+    embed = discord.Embed(
+        title="Welcome",
+        description="This is a test embed.",
+        color=discord.Color.green()
     )
-    
-# CLEAR MESSAGES
+
+    embed.set_footer(text="My Discord Bot")
+
+    await ctx.send(embed=embed)
+
+# Send a DM
 @bot.command()
-@commands.has_permissions(manage_messages=True)
-async def clear(ctx, amount: int):
-    await ctx.channel.purge(limit=amount)
-    await ctx.send(f"Deleted {amount} messages.", delete_after=3)
+async def dm(ctx, member: discord.Member, *, message):
+    await member.send(message)
+    await ctx.send("DM sent!")
+
+# Send custom message to any channel
+@bot.command()
+async def sendto(ctx, channel: discord.TextChannel, *, message):
+    await channel.send(message)
+    await ctx.send("Message sent!")
+
+# Send custom embed
+
+@bot.command()
+async def customembed(ctx, title, *, description):
+    embed = discord.Embed(
+        title=title,
+        description=description,
+        color=discord.Color.blue()
+    )
+
+    await ctx.send(embed=embed)
 
 bot.run(TOKEN)
